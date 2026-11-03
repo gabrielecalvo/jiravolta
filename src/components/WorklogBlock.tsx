@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import type { Worklog } from '../types';
-import { formatTime, snapToQuarterHour, calculateDuration } from '../utils/dateUtils';
+import { formatTime, formatDuration, snapToQuarterHour, calculateDuration } from '../utils/dateUtils';
 import { getIssueColor } from '../utils/colorUtils';
 import './WorklogBlock.css';
 
@@ -323,7 +323,7 @@ export const WorklogBlock: React.FC<WorklogBlockProps> = ({
                     e.preventDefault();
                     setShowMenu(true);
                 }}
-                title={`${getIssueFullLabel(worklog.issueKey)} (${worklog.issueKey})\n${formatTime(new Date(worklog.start))} - ${formatTime(new Date(worklog.end))}\n${worklog.durationMinutes}m`}
+                title={`${getIssueFullLabel(worklog.issueKey)} (${worklog.issueKey})\n${formatTime(new Date(worklog.start))} - ${formatTime(new Date(worklog.end))}\n${formatDuration(worklog.durationMinutes)}`}
             >
                 <div className="worklog-content">
                     <div className="worklog-issue">
@@ -331,44 +331,39 @@ export const WorklogBlock: React.FC<WorklogBlockProps> = ({
                             {formatIssueLabel(worklog.issueKey, 22)}
                         </span>
                     </div>
+                    {height > 50 && (isEditingComment || worklog.comment) && (
+                        <div className="worklog-comment-row" onMouseDown={e => e.stopPropagation()}>
+                            {isEditingComment ? (
+                                <input
+                                    type="text"
+                                    className="worklog-comment-input"
+                                    autoFocus
+                                    value={commentDraft}
+                                    placeholder="Add a comment..."
+                                    onClick={e => e.stopPropagation()}
+                                    onChange={e => setCommentDraft(e.target.value)}
+                                    onBlur={commitComment}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            commitComment();
+                                        } else if (e.key === 'Escape') {
+                                            e.preventDefault();
+                                            cancelComment();
+                                        }
+                                    }}
+                                />
+                            ) : worklog.comment ? (
+                                <span className="worklog-comment-text" title={worklog.comment}>
+                                    {worklog.comment}
+                                </span>
+                            ) : null}
+                        </div>
+                    )}
                     {height > 30 && (
-                        <>
-                            <div className="worklog-time">
-                                {formatTime(new Date(worklog.start))} - {formatTime(new Date(worklog.end))}
-                            </div>
-                            {height > 50 && (
-                                <div className="worklog-duration">{worklog.durationMinutes}m</div>
-                            )}
-                            {height > 50 && (isEditingComment || worklog.comment) && (
-                                <div className="worklog-comment-row" onMouseDown={e => e.stopPropagation()}>
-                                    {isEditingComment ? (
-                                        <input
-                                            type="text"
-                                            className="worklog-comment-input"
-                                            autoFocus
-                                            value={commentDraft}
-                                            placeholder="Add a comment..."
-                                            onClick={e => e.stopPropagation()}
-                                            onChange={e => setCommentDraft(e.target.value)}
-                                            onBlur={commitComment}
-                                            onKeyDown={e => {
-                                                if (e.key === 'Enter') {
-                                                    e.preventDefault();
-                                                    commitComment();
-                                                } else if (e.key === 'Escape') {
-                                                    e.preventDefault();
-                                                    cancelComment();
-                                                }
-                                            }}
-                                        />
-                                    ) : worklog.comment ? (
-                                        <span className="worklog-comment-text" title={worklog.comment}>
-                                            {worklog.comment}
-                                        </span>
-                                    ) : null}
-                                </div>
-                            )}
-                        </>
+                        <div className="worklog-time">
+                            {formatTime(new Date(worklog.start))} - {formatTime(new Date(worklog.end))} ({formatDuration(worklog.durationMinutes)})
+                        </div>
                     )}
                 </div>
                 <div

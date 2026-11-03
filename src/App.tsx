@@ -278,6 +278,7 @@ function App() {
           start: originalWorklog.start,
           end: originalWorklog.end,
           durationMinutes: originalWorklog.durationMinutes,
+          comment: originalWorklog.comment,
           ...updates,
           source: 'draft' as const,
           changeType: 'update' as const,
@@ -428,6 +429,7 @@ function App() {
             end: draft.end,
             durationMinutes: draft.durationMinutes,
             source: 'jira',
+            comment: draft.comment,
           });
         } else if (draft.changeType === 'update') {
           await updateJiraWorklog(draft);
@@ -440,6 +442,7 @@ function App() {
               end: draft.end,
               durationMinutes: draft.durationMinutes,
               source: 'jira',
+              comment: draft.comment,
             };
           }
         } else if (draft.changeType === 'delete') {

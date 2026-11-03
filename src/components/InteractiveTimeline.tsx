@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import type { Worklog, DraftWorklog } from '../types';
-import { snapToQuarterHour, formatTime, calculateDuration } from '../utils/dateUtils';
+import { snapToQuarterHour, formatTime, formatDuration, calculateDuration } from '../utils/dateUtils';
 import { checkForOverlaps } from '../utils/validationUtils';
 import { WorklogBlock } from './WorklogBlock';
 import './InteractiveTimeline.css';
@@ -409,7 +409,7 @@ export const InteractiveTimeline: React.FC<InteractiveTimelineProps> = ({
                                             {formatTime(new Date(previewWorklog.start))} - {formatTime(new Date(previewWorklog.end))}
                                         </div>
                                         <div className="worklog-duration">
-                                            {previewWorklog.durationMinutes}m
+                                            {formatDuration(previewWorklog.durationMinutes)}
                                         </div>
                                     </div>
                                 </div>

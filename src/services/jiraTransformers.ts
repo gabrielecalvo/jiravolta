@@ -22,6 +22,37 @@ export function transformJiraWorklog(jiraWorklog: JiraWorklog, issueKeyMap: Reco
         end: end.toISOString(),
         durationMinutes,
         source: 'jira',
+        comment: adfToText(jiraWorklog.comment) || undefined,
+    };
+}
+
+interface AdfNode {
+    type?: string;
+    text?: string;
+    content?: AdfNode[];
+}
+
+export function adfToText(adf: unknown): string {
+    if (!adf) return '';
+    if (typeof adf === 'string') return adf;
+    const collect = (node: AdfNode): string => {
+        if (node.type === 'text') return node.text ?? '';
+        if (node.type === 'hardBreak') return '\n';
+        const children = (node.content ?? []).map(collect);
+        return node.type === 'doc' ? children.join('\n') : children.join('');
+    };
+    return collect(adf as AdfNode).trim();
+}
+
+export function textToAdf(text: string | undefined) {
+    const lines = (text ?? '').trim().split('\n');
+    return {
+        type: 'doc',
+        version: 1,
+        content: lines.map(line => ({
+            type: 'paragraph',
+            content: line ? [{ type: 'text', text: line }] : [],
+        })),
     };
 }
 

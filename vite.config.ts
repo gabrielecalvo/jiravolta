@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import path from 'node:path'
+import pkg from './package.json'
 import type { Plugin, ViteDevServer } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
@@ -129,12 +130,12 @@ function jiraLocalCachePlugin(env: Record<string, string>): Plugin {
             return
           }
           try {
-            const body = JSON.parse(await readBody(req)) as { issueKey: string; started: string; timeSpentSeconds: number }
+            const body = JSON.parse(await readBody(req)) as { issueKey: string; started: string; timeSpentSeconds: number; comment?: unknown }
             const authHeader = `Basic ${Buffer.from(`${email}:${token}`).toString('base64')}`
             const jiraRes = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(body.issueKey)}/worklog`, {
               method: 'POST',
               headers: { 'Authorization': authHeader, 'Accept': 'application/json', 'Content-Type': 'application/json' },
-              body: JSON.stringify({ started: body.started, timeSpentSeconds: body.timeSpentSeconds }),
+              body: JSON.stringify({ started: body.started, timeSpentSeconds: body.timeSpentSeconds, comment: body.comment }),
             })
             if (!jiraRes.ok) {
               const errorText = await jiraRes.text().catch(() => jiraRes.statusText)
@@ -163,14 +164,14 @@ function jiraLocalCachePlugin(env: Record<string, string>): Plugin {
             return
           }
           try {
-            const body = JSON.parse(await readBody(req)) as { issueKey: string; worklogId: string; started: string; timeSpentSeconds: number }
+            const body = JSON.parse(await readBody(req)) as { issueKey: string; worklogId: string; started: string; timeSpentSeconds: number; comment?: unknown }
             const authHeader = `Basic ${Buffer.from(`${email}:${token}`).toString('base64')}`
             const jiraRes = await fetch(
               `${baseUrl}/rest/api/3/issue/${encodeURIComponent(body.issueKey)}/worklog/${encodeURIComponent(body.worklogId)}`,
               {
                 method: 'PUT',
                 headers: { 'Authorization': authHeader, 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                body: JSON.stringify({ started: body.started, timeSpentSeconds: body.timeSpentSeconds }),
+                body: JSON.stringify({ started: body.started, timeSpentSeconds: body.timeSpentSeconds, comment: body.comment }),
               },
             )
             if (!jiraRes.ok) {
@@ -180,6 +181,7 @@ function jiraLocalCachePlugin(env: Record<string, string>): Plugin {
               return
             }
             const updated = await jiraRes.json()
+            fs.rmSync(path.resolve('.cache', 'worklogs', `${path.basename(body.worklogId)}.json`), { force: true })
             res.setHeader('Content-Type', 'application/json')
             res.end(JSON.stringify(updated))
           } catch (err) {
@@ -219,6 +221,7 @@ function jiraLocalCachePlugin(env: Record<string, string>): Plugin {
               res.end(JSON.stringify({ error: `Jira delete worklog failed: ${jiraRes.status} ${errorText}` }))
               return
             }
+            fs.rmSync(path.resolve('.cache', 'worklogs', `${path.basename(worklogId)}.json`), { force: true })
             res.statusCode = 204
             res.end()
           } catch (err) {
@@ -750,5 +753,8 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), jiraLocalCachePlugin(env)],
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
   }
 })

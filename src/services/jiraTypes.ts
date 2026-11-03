@@ -21,7 +21,7 @@ export interface JiraWorklog {
     issueId: string;
     author: JiraUser;
     updateAuthor?: JiraUser;
-    comment?: string;
+    comment?: unknown;        // ADF document in API v3
     created: string;          // ISO datetime
     updated: string;          // ISO datetime
     started: string;          // ISO datetime - when work was performed

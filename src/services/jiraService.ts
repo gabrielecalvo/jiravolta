@@ -9,7 +9,7 @@ import type {
     JiraWeekCacheData,
     JiraWorklog,
 } from './jiraTypes';
-import { transformJiraWorklogList } from './jiraTransformers';
+import { transformJiraWorklogList, textToAdf } from './jiraTransformers';
 
 export interface WeekWorklogData {
     worklogs: Worklog[];
@@ -143,7 +143,7 @@ export async function createJiraWorklog(draft: DraftWorklog): Promise<JiraWorklo
     const response = await fetch(LOCAL_JIRA_WORKLOG_CREATE_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ issueKey: draft.issueKey, started, timeSpentSeconds }),
+        body: JSON.stringify({ issueKey: draft.issueKey, started, timeSpentSeconds, comment: textToAdf(draft.comment) }),
     });
 
     if (!response.ok) {
@@ -167,7 +167,7 @@ export async function updateJiraWorklog(draft: DraftWorklog): Promise<void> {
     const response = await fetch(LOCAL_JIRA_WORKLOG_UPDATE_ENDPOINT, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ issueKey: draft.issueKey, worklogId: draft.id, started, timeSpentSeconds }),
+        body: JSON.stringify({ issueKey: draft.issueKey, worklogId: draft.id, started, timeSpentSeconds, comment: textToAdf(draft.comment) }),
     });
 
     if (!response.ok) {

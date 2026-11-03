@@ -28,7 +28,10 @@ export const WeekNavigation: React.FC<WeekNavigationProps> = ({
     return (
         <div className="week-navigation">
             <div className="week-info">
-                <h1>JiraVolta</h1>
+                <h1>
+                    JiraVolta
+                    <span className="app-version-badge">v{__APP_VERSION__}</span>
+                </h1>
                 <div className="week-range">
                     {formatDate(weekStart)} — {formatDate(weekEnd)}
                 </div>
