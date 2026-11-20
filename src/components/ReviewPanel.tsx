@@ -1,6 +1,7 @@
 import React from 'react';
 import type { DraftWorklog } from '../types';
 import { formatTime, formatDate } from '../utils/dateUtils';
+import { buildWorklogTooltip } from '../utils/issueDisplayUtils';
 import './ReviewPanel.css';
 
 interface ReviewPanelProps {
@@ -70,7 +71,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
                     ) : (
                         <div className="drafts-list">
                             {drafts.map(draft => (
-                                <div key={draft.id} className="draft-item">
+                                <div key={draft.id} className="draft-item" title={buildWorklogTooltip(draft, getIssueFullLabel(draft.issueKey))}>
                                     <div className={`change-badge ${getChangeTypeClass(draft.changeType)}`}>
                                         {getChangeTypeLabel(draft.changeType)}
                                     </div>
@@ -89,6 +90,11 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
                                         <div className="draft-duration">
                                             {draft.durationMinutes} minutes
                                         </div>
+                                        {draft.comment && (
+                                            <div className="draft-comment">
+                                                {draft.comment}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}

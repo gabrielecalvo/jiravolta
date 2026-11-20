@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import type { Worklog } from '../types';
 import { formatTime, formatDuration, snapToQuarterHour, calculateDuration } from '../utils/dateUtils';
 import { getIssueColor } from '../utils/colorUtils';
+import { buildWorklogTooltip } from '../utils/issueDisplayUtils';
 import './WorklogBlock.css';
 
 interface WorklogBlockProps {
@@ -323,7 +324,7 @@ export const WorklogBlock: React.FC<WorklogBlockProps> = ({
                     e.preventDefault();
                     setShowMenu(true);
                 }}
-                title={`${getIssueFullLabel(worklog.issueKey)} (${worklog.issueKey})\n${formatTime(new Date(worklog.start))} - ${formatTime(new Date(worklog.end))}\n${formatDuration(worklog.durationMinutes)}`}
+                title={buildWorklogTooltip(worklog, getIssueFullLabel(worklog.issueKey))}
             >
                 <div className="worklog-content">
                     <div className="worklog-issue">

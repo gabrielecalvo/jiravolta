@@ -163,6 +163,18 @@
     color: #999;
 }
 
+.draft-comment {
+    margin-top: 0.25rem;
+    padding: 0.4rem 0.5rem;
+    background: white;
+    border-left: 3px solid #1976d2;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .review-panel-actions {
     display: flex;
     gap: 0.75rem;
